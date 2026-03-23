@@ -1,0 +1,33 @@
+﻿library(dplyr)
+library(tidyverse)
+library(readxl)
+install.packages("effsize")
+library(effsize)
+
+
+Gunlaw <- read_excel("gunlaw.xlsx")
+
+
+Gunlaw <- Gunlaw %>%
+  filter(sex %in% c("MALE", "FEMALE")) %>%
+  view()
+Gunlaw
+
+
+Gunlaw$gunlaw_numeric <- recode(Gunlaw$gunlaw, 
+                                  "FAVOR" = 1, 
+                                  "OPPOSE" = 2)
+
+
+t.test(gunlaw_numeric ~ sex, data = Gunlaw)
+
+
+t.test(gunlaw_numeric ~ sex, data = Gunlaw, alternative = "greater")
+
+
+cohen.d(gunlaw_numeric ~ sex, data = Gunlaw)
+
+
+Gunlaw %>%
+  group_by(sex) %>%
+  summarise(mean(gunlaw_numeric), sd(gunlaw_numeric))
