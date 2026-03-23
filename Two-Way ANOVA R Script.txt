@@ -1,0 +1,72 @@
+﻿install.packages("dplyr")
+library(dplyr)
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("readxl")
+library(readxl)
+install.packages("agricolae")
+library(agricolae)
+install.packages("lsr")
+library(lsr)
+install.packages("sjstats")
+library(sjstats)
+install.packages("effsize")
+library(effsize)
+
+
+LifeSat <- read_excel("lifesatisfaction.xlsx")
+
+
+LifeSat$happy_numeric <- recode(LifeSat$happy, 
+                                "Not too happy" = 1, 
+                                "Pretty happy" = 2,
+                                "Very happy" = 3)
+view(LifeSat)
+
+
+religvsmarr <- aov(happy_numeric ~ marital * relig16, data = LifeSat)
+summary(religvsmarr)
+
+
+etaSquared(religvsmarr)
+
+
+TukeyHSD(religvsmarr)
+
+
+LifeSat %>%
+  group_by(marital) %>%
+  summarise(mean(happy_numeric), sd(happy_numeric))
+
+
+LifeSat %>%
+  group_by(relig16) %>%
+  summarise(mean(happy_numeric), sd(happy_numeric))
+
+
+MarvsNev <- LifeSat %>%
+  filter(marital %in% c("Married", "Never married")) %>%
+  view()
+
+
+MarvsDiv <- LifeSat %>%
+  filter(marital %in% c("Married", "Divorced")) %>%
+  view()
+
+
+MarvsWid <- LifeSat %>%
+  filter(marital %in% c("Married", "Widowed")) %>%
+  view()
+
+
+MarvsSep <- LifeSat %>%
+  filter(marital %in% c("Married", "Separated")) %>%
+  view()
+
+
+
+
+cohen.d(happy_numeric ~ marital, data = MarvsNev)
+cohen.d(happy_numeric ~ marital, data = MarvsDiv)
+cohen.d(happy_numeric ~ marital, data = MarvsWid)
+cohen.d(happy_numeric ~ marital, data = MarvsSep)
