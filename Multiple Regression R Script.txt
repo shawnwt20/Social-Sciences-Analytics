@@ -1,0 +1,35 @@
+﻿library(dplyr)
+library(tidyverse)
+library(readxl)
+
+
+Healthcond <- read_excel("healthcon.xlsx")
+
+
+Healthcond$health_numeric <- recode(Healthcond$health, 
+                                    "Poor" = 1, 
+                                    "Fair" = 2,
+                                    "Good" = 3,
+                                    "Excellent" = 4)
+
+
+sum(is.na(Healthcond$health_numeric))
+Healthcond <- Healthcond %>% filter(!is.na(health_numeric))
+sum(is.na(Healthcond$health_numeric))
+sum(is.na(Healthcond$age))
+str(Healthcond$age)
+Healthcond$age <- as.numeric(Healthcond$age)
+sum(is.na(Healthcond$age))
+Healthcond <- Healthcond %>% filter(!is.na(age))
+sum(is.na(Healthcond$age))
+
+
+cor.test(Healthcond$health_numeric, Healthcond$age)
+
+
+plot(Healthcond)
+plot(Healthcond$health_numeric, Healthcond$age)
+
+
+HealthMR <- lm(health_numeric ~ age + educ + race, data = Healthcond)
+summary(HealthMR)
