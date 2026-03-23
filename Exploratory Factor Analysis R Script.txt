@@ -1,0 +1,84 @@
+﻿library(dplyr)
+library(tidyverse)
+library(readxl)
+install.packages("psych")
+library(psych)
+install.packages("REdaS")
+library(REdaS)
+install.packages("lavaan")
+library(lavaan)
+install.packages("igraph")
+install.packages("semPlot")
+install.packages("OpenMx")
+library(semPlot)
+
+
+Trust <- read_excel("EFA2.xlsx")
+Trust$confinan_n <- recode(Trust$confinan, 
+                           "A GREAT DEAL" = 1, 
+                           "ONLY SOME" = 2,
+                           "HARDLY ANY" = 3)
+
+
+Trust$conbus_n <- recode(Trust$conbus, 
+                         "A GREAT DEAL" = 1, 
+                         "ONLY SOME" = 2,
+                         "HARDLY ANY" = 3)
+
+
+Trust$conclerg_n <- recode(Trust$conclerg, 
+                           "A GREAT DEAL" = 1, 
+                           "ONLY SOME" = 2,
+                           "HARDLY ANY" = 3)
+
+
+Trust$confed_n <- recode(Trust$confed, 
+                         "A GREAT DEAL" = 1, 
+                         "ONLY SOME" = 2,
+                         "HARDLY ANY" = 3)
+
+
+Trust$conpress_n <- recode(Trust$conpress, 
+                           "A GREAT DEAL" = 1, 
+                           "ONLY SOME" = 2,
+                           "HARDLY ANY" = 3)
+
+
+Trust$conjudge_n <- recode(Trust$conjudge, 
+                           "A GREAT DEAL" = 1, 
+                           "ONLY SOME" = 2,
+                           "HARDLY ANY" = 3)
+
+
+Trust$conlegis_n <- recode(Trust$conlegis, 
+                           "A GREAT DEAL" = 1, 
+                           "ONLY SOME" = 2,
+                           "HARDLY ANY" = 3)
+
+
+Trust$conarmy_n <- recode(Trust$conarmy, 
+                          "A GREAT DEAL" = 1, 
+                          "ONLY SOME" = 2,
+                          "HARDLY ANY" = 3)
+
+
+Auth_confidence <- Trust[, !names(Trust) %in% c("year", "id_", "ballot", "confinan", "conbus", "conclerg", "confed", "conpress", "conjudge", "conlegis", "conarmy")]
+
+
+Bart <- bart_spher(Auth_confidence)
+Bart
+
+
+KMOtest <- KMOS(Auth_confidence)
+KMOtest
+
+
+F_analysis <- fa(Auth_confidence, nfactors = 8, rotate = "oblimin", fm = "ml")
+F_analysis
+
+
+F_analysis2 <- fa(Auth_confidence, nfactors = 2, rotate = "oblimin", fm = "ml")
+F_analysis2
+
+
+Diag <- fa.diagram(F_analysis2, main = "Confidence in Authority", digits = 2)
