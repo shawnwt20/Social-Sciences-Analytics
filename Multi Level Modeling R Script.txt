@@ -1,0 +1,74 @@
+﻿install.packages(c("jtools", "lme4"))
+devtools::install_github("dustinfife/flexplot")
+library(dplyr)
+library(tidyverse)
+library(jtools)
+library(lme4)
+library(readxl)
+
+
+Educinc <- read_excel("MLM2.xlsx")
+Educinc$rincome_numeric <- recode(Educinc$rincome, 
+                                  "LT $1000" = 1, 
+                                  "$1000 TO 2999" = 2,
+                                  "$3000 TO 3999" = 3,
+                                  "$4000 TO 4999" = 4,
+                                  "$5000 TO 5999" = 5,
+                                  "$6000 TO 6999" = 6,
+                                  "$7000 TO 7999" = 7,
+                                  "$8000 TO 9999" = 8,
+                                  "$10000 - 14999" = 9,
+                                  "$15000 - 19999" = 10,
+                                  "$20000 - 24999" = 11,
+                                  "$25000 OR MORE" = 12)
+
+
+Educinc$educ_numeric <- recode(Educinc$educ, 
+                                  "No formal schooling" = 0,
+                                  "1st grade" = 1, 
+                                  "2nd grade" = 2,
+                                  "3rd grade" = 3,
+                                  "4th grade" = 4,
+                                  "5th grade" = 5,
+                                  "6th grade" = 6,
+                                  "7th grade" = 7,
+                                  "8th grade" = 8,
+                                  "9th grade" = 9,
+                                  "10th grade" = 10,
+                                  "11th grade" = 11,
+                                  "12th grade" = 12,
+                                  "1 year of college" = 13,
+                                  "2 years of college" = 14,
+                                  "3 years of college" = 15,
+                                  "4 years of college" = 16,
+                                  "5 years of college" = 17,
+                                  "6 years of college" = 18,
+                                  "7 years of college" = 19,
+                                  "8 or more years of college" = 20)
+
+
+Educinc$region_numeric <- recode(Educinc$region, 
+                                  "New England" = 1, 
+                                  "Middle Atlantic" = 2,
+                                  "East North Central" = 3,
+                                  "West North Central" = 4,
+                                  "South Atlantic" = 5,
+                                  "East South Central" = 6,
+                                  "West South Central" = 7,
+                                  "Mountain" = 8,
+                                  "Pacific" = 9)
+
+
+baseline <- lmer(rincome_numeric ~ 1 + (1|region_numeric), REML = FALSE, data = Educinc)
+summ(baseline)
+
+
+FixedSlopes <- lmer(rincome_numeric ~ 1 + educ_numeric + (1|region_numeric), REML = FALSE, data = Educinc)
+summ(FixedSlopes, digits = 4)
+
+
+RandomSlopes <- lmer(rincome_numeric ~ 1 + educ_numeric + (educ_numeric|region_numeric), REML = FALSE, data = Educinc)
+summ(RandomSlopes)
+
+
+anova(baseline, FixedSlopes, RandomSlopes)
