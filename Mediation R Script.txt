@@ -1,0 +1,71 @@
+﻿install.packages("mediation")
+library(dplyr)
+library(tidyverse)
+library(readxl)
+install.packages("bda")
+library(bda)
+library(mediation)
+Jobhappy <- read_excel("mediation.xlsx")
+
+
+Jobhappy$income_numeric <- recode(Jobhappy$income, 
+                                    "Under $1,000" = 1, 
+                                    "$1,000 to $2,999" = 2,
+                                    "$3,000 to $3,999" = 3,
+                                    "$4,000 to $4,999" = 4,
+                                    "$5,000 to $5,999" = 5,
+                                    "$6,000 to $6,999" = 6,
+                                    "$7,000 to $7,999" = 7,
+                                    "$8,000 to $9,999" = 8,
+                                    "$10,000 to $14,999" = 9,
+                                    "$15,000 to $19,999" = 10,
+                                    "$20,000 to $24,999" = 11,
+                                    "$25,000 or more" = 12)
+
+
+Jobhappy$satjob1_numeric <- recode(Jobhappy$satjob1, 
+                                  "Not at all satisfied" = 1,
+                                  "Not too satisfied" = 2,
+                                  "Somewhat satisfied" = 3,
+                                  "Very satisfied" = 4)
+
+
+Jobhappy$depress_numeric <- recode(Jobhappy$depress, 
+                                   "Yes" = 1,
+                                   "No" = 2)
+
+
+cor1 <- cor.test(Jobhappy$income_numeric, Jobhappy$satjob1_numeric)
+cor1
+
+
+cor2 <- cor.test(Jobhappy$income_numeric, Jobhappy$depress_numeric)
+cor2
+
+
+cor3 <- cor.test(Jobhappy$satjob1_numeric, Jobhappy$depress_numeric)
+cor3
+
+
+Step1 <- lm(depress_numeric ~ income_numeric, data = Jobhappy)
+summary(Step1)
+Step1
+
+
+Step2 <- lm(satjob1_numeric ~ income_numeric, data = Jobhappy)
+summary(Step2)
+Step2
+
+
+Step3 <- lm(depress_numeric ~ satjob1_numeric + income_numeric, data = Jobhappy)
+summary(Step3)
+Step3
+
+
+Medtest <- mediation.test(Jobhappy$satjob1_numeric, Jobhappy$income_numeric, Jobhappy$depress_numeric)
+Medtest
+
+
+Boot <- mediate(Step2, Step3, treat = "income_numeric", mediator = "satjob1_numeric", boot = TRUE, sims = 100)
+Boot
+summary(Boot)
